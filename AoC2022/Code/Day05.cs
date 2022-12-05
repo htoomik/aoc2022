@@ -21,16 +21,49 @@ namespace AoC2022.Code
             return string.Join("", final.Skip(1).Select(l => l.First()));
         }
 
-        public int Solve2(List<string> input)
+        public string Solve2(string input)
         {
-            return 0;
+            var parts = input.Replace("\r\n", "\n").Split("\n\n");
+
+            var stacks = ParseStacks(parts[0]);
+            var instructions = ParseInstructions(parts[1]);
+
+            var final = Apply2(stacks, instructions);
+
+            return string.Join("", final.Skip(1).Select(l => l.First()));
         }
 
         private static List<List<char>> Apply(List<List<char>> stacks, List<Instruction> instructions)
         {
+            foreach (var instruction in instructions)
+            {
+                var fromStack = stacks[instruction.From];
+                var toStack = stacks[instruction.To];
+                
+                for (int i = 0; i < instruction.Count; i++)
+                {
+                    var crate = fromStack.First();
+                    fromStack.RemoveAt(0);
+                    toStack.Insert(0, crate);
+                }
+            }
             return stacks;
         }
 
+        private static List<List<char>> Apply2(List<List<char>> stacks, List<Instruction> instructions)
+        {
+            foreach (var instruction in instructions)
+            {
+                var fromStack = stacks[instruction.From];
+                var toStack = stacks[instruction.To];
+
+                var crates = fromStack.Take(instruction.Count).ToList();
+                fromStack.RemoveRange(0, instruction.Count);
+                toStack.InsertRange(0, crates);
+            }
+            return stacks;
+        }
+        
         private static List<List<char>> ParseStacks(string input)
         {
             var lines = input.Split("\n");
@@ -81,9 +114,9 @@ namespace AoC2022.Code
             public static Instruction Parse(string s)
             {
                 var parts = s.Split(' ');
-                var from = int.Parse(parts[1]);
-                var to = int.Parse(parts[3]);
-                var count = int.Parse(parts[5]);
+                var count = int.Parse(parts[1]);
+                var from = int.Parse(parts[3]);
+                var to = int.Parse(parts[5]);
 
                 return new Instruction { From = from, To = to, Count = count };
             }

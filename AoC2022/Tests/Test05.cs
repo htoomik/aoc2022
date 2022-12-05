@@ -37,17 +37,14 @@ move 1 from 1 to 2";
         [Test]
         public void Example2()
         {
-            const string data = @"
-";
-            var input = DataHelper.SplitLines(data);
-            var result = new Day05().Solve2(input);
-            result.ShouldBe(0);
+            var result = new Day05().Solve2(Data);
+            result.ShouldBe("MCD");
         }
 
         [Test]
         public void Part2()
         {
-            var input = DataHelper.ReadLines(0);
+            var input = DataHelper.ReadFile(5);
             var result = new Day05().Solve2(input);
             Console.WriteLine(result);
         }
