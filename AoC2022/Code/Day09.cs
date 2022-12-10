@@ -9,8 +9,18 @@ namespace AoC2022.Code
     {
         public int Solve(List<string> input)
         {
-            var rope = new Rope();
-            var tailPositions = new HashSet<End>();
+            return SolveInner(input, 2);
+        }
+
+        public int Solve2(List<string> input)
+        {
+            return SolveInner(input, 10);
+        }
+
+        private static int SolveInner(List<string> input, int knots)
+        {
+            var rope = new Rope(knots);
+            var tailPositions = new HashSet<(int, int)>();
 
             foreach (var line in input)
             {
@@ -20,16 +30,16 @@ namespace AoC2022.Code
                 for (var i = 0; i < count; i++)
                 {
                     rope.MoveHead(direction);
-                    tailPositions.Add(rope.Tail);
+                    tailPositions.Add((rope.Tail.X, rope.Tail.Y));
                 }
             }
 
             // Print(tailPositions);
-            
+
             return tailPositions.Count;
         }
 
-        private static void Print(HashSet<End> positions)
+        private static void Print(HashSet<Knot> positions)
         {
             var minX = positions.Select(p => p.X).Min();
             var minY = positions.Select(p => p.Y).Min();
@@ -41,7 +51,7 @@ namespace AoC2022.Code
                 var line = string.Empty;
                 for (int x = minX; x <= maxX; x++)
                 {
-                    var pos = new End { X = x, Y = y };
+                    var pos = new Knot { X = x, Y = y };
                     if (x == 0 && y == 0)
                     {
                         line += "s";
@@ -59,15 +69,19 @@ namespace AoC2022.Code
             }
         }
 
-        public int Solve2(List<string> input)
-        {
-            return 0;
-        }
-
         private class Rope
         {
-            public End Tail;
-            public End Head;
+            public readonly List<Knot> Knots = new();
+            public Knot Head => Knots[0];
+            public Knot Tail => Knots.Last();
+
+            public Rope(int knots)
+            {
+                for (var i = 0; i < knots; i++)
+                {
+                    Knots.Add(new Knot());
+                }
+            }
 
             public void MoveHead(char direction)
             {
@@ -87,71 +101,74 @@ namespace AoC2022.Code
                         break;
                 }
 
-                if (!Touching())
+                for (int i = 0; i < Knots.Count - 1; i++)
                 {
-                    MoveTail();
+                    if (!Touching(Knots[i], Knots[i + 1]))
+                    {
+                        MoveTail(Knots[i], Knots[i + 1]);
+                    }
                 }
             }
 
-            private bool Touching()
+            private static bool Touching(Knot head, Knot tail)
             {
-                var xd = Math.Abs(Head.X - Tail.X);
-                var yd = Math.Abs(Head.Y - Tail.Y);
+                var xd = Math.Abs(head.X - tail.X);
+                var yd = Math.Abs(head.Y - tail.Y);
                 return xd <= 1 && yd <= 1;
             }
 
-            private void MoveTail()
+            private static void MoveTail(Knot head, Knot tail)
             {
-                if (Head.X == Tail.X)
+                if (head.X == tail.X)
                 {
-                    if (Head.Y > Tail.Y)
+                    if (head.Y > tail.Y)
                     {
-                        Tail.Y++;
+                        tail.Y++;
                     }
-                    else if (Head.Y < Tail.Y)
+                    else if (head.Y < tail.Y)
                     {
-                        Tail.Y--;
+                        tail.Y--;
                     }
                 }
-                else if (Head.X > Tail.X)
+                else if (head.X > tail.X)
                 {
-                    if (Head.Y == Tail.Y)
+                    if (head.Y == tail.Y)
                     {
-                        Tail.X++;
+                        tail.X++;
                     }
-                    else if (Head.Y > Tail.Y)
+                    else if (head.Y > tail.Y)
                     {
-                        Tail.X++;
-                        Tail.Y++;
+                        tail.X++;
+                        tail.Y++;
                     }
-                    else if (Head.Y < Tail.Y)
+                    else if (head.Y < tail.Y)
                     {
-                        Tail.X++;
-                        Tail.Y--;
+                        tail.X++;
+                        tail.Y--;
                     }
                 }
-                else if (Head.X < Tail.X)
+                else if (head.X < tail.X)
                 {
-                    if (Head.Y == Tail.Y)
+                    if (head.Y == tail.Y)
                     {
-                        Tail.X--;
+                        tail.X--;
                     }
-                    else if (Head.Y > Tail.Y)
+                    else if (head.Y > tail.Y)
                     {
-                        Tail.X--;
-                        Tail.Y++;
+                        tail.X--;
+                        tail.Y++;
                     }
-                    else if (Head.Y < Tail.Y)
+                    else if (head.Y < tail.Y)
                     {
-                        Tail.X--;
-                        Tail.Y--;
+                        tail.X--;
+                        tail.Y--;
                     }
                 }
             }
         }
 
         [DebuggerDisplay("X: {X}, Y: {Y}")]
-        private struct End
+        private class Knot
         {
             public int X;
             public int Y;
