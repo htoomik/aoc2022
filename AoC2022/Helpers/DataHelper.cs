@@ -48,6 +48,12 @@ namespace AoC2022.Helpers
             return File.ReadAllLines(path).ToList();
         }
 
+        public static List<string> ReadLines(string fileName)
+        {
+            var path = GetPath(fileName);
+            return File.ReadAllLines(path).ToList();
+        }
+
         public static List<int> ReadIntegers(int day)
         {
             var content = ReadFile(day);
@@ -62,13 +68,18 @@ namespace AoC2022.Helpers
 
         public static string ReadFile(string fileName)
         {
-            var path = $"c:\\code\\aoc2022\\aoc2022\\data\\{fileName}";
+            var path = GetPath(fileName);
             return File.ReadAllText(path);
         }
 
         private static string GetPath(int day)
         {
             var fileName = $"input{day:00}.txt";
+            return GetPath(fileName);
+        }
+
+        private static string GetPath(string fileName)
+        {
             var path = $"c:\\code\\aoc2022\\aoc2022\\data\\{fileName}";
             return path;
         }
